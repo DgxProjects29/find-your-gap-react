@@ -1,0 +1,68 @@
+/* Header Styles */
+
+#hamburger-tab {
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  background-color: var(--primary-color);
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 10%;
+}
+
+.header__title {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  font-family: "Montserrat", sans-serif;
+  color: var(--clr-white);
+}
+
+#hamburger-tab {
+  display: none;
+}
+
+.header__nav-links li {
+  display: inline-block;
+  margin: 0.3rem 1rem;
+  cursor: pointer;
+}
+
+.header__nav-links li a {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  border-radius: 0.8rem;
+  color: var(--clr-white);
+  transition: var(--common-transition);
+}
+
+.header__nav-links > li > a:not(.navlink--active):hover {
+  color: var(--secondary-light-color);
+}
+
+.navlink--active {
+  padding: 0.3rem 1rem;
+  background-color: var(--secondary-light-color);
+}
+
+.navlink--active:hover {
+  transition: var(--common-transition);
+  background-color: var(--secondary-lght-hover);
+}
+
+@media (max-width: 700px) {
+  .header__nav {
+    display: none;
+  }
+
+  .header__title {
+    font-size: 1.5rem;
+  }
+
+  #hamburger-tab {
+    display: inline-block;
+    margin-right: 0.9rem;
+  }
+}
