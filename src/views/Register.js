@@ -1,13 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import useFetch from "use-http";
+import { API_BASE } from "../utils/constants";
 
 import "./Register.css";
 import "../common-css/FormStyles.css";
 
 export default function Register() {
   const { register, handleSubmit, errors } = useForm();
+  const [isDataLoaded, setDataLoaded] = useState(false);
+  const [regiserData, setRegisterData] = useState({});
+  const { post, response, loading } = useFetch(API_BASE);
 
-  const onSubmit = (data) => console.log(data);
+  //const onSubmit = (data) => console.log(data);
+
+  const onSubmit = async (data) => {
+    const registerData = await post("/register", {
+      username: data.username,
+      password: data.password,
+      password_confirmation: data.password_confirmation,
+    });
+    setDataLoaded(true);
+    setRegisterData(registerData);
+    if (response.ok) {
+      console.log("GOOD   " + response.status);
+    } else {
+      console.log("NOGOOD  " + response.status);
+    }
+  };
 
   return (
     <main className="main-wrapper section-center">
@@ -26,6 +46,9 @@ export default function Register() {
             />
             {errors.username && (
               <p className="error-message">{errors.username.message}</p>
+            )}
+            {!loading && isDataLoaded && regiserData.username &&  (
+              <p className="error-message">{regiserData.username[0]}</p>
             )}
           </div>
 
@@ -55,12 +78,23 @@ export default function Register() {
             )}
           </div>
 
+          <div className="non-field-error-container">
+            {!loading && isDataLoaded && regiserData.non_field_errors && 
+              regiserData.non_field_errors.map((errorMessage) => (
+                <p className="error-message">{errorMessage}</p>
+              ))}
+          </div>
+
           <button
             type="submit"
             className="base-btn primary-btn"
             id="register-btn"
           >
-            Registrarse
+            {loading ? (
+              <div className="base-loader login-btn-loader"></div>
+            ) : (
+              "Registrarse"
+            )}
           </button>
         </form>
       </section>

@@ -32,6 +32,10 @@
   border-color: var(--secondary-light-color);
 }
 
+.non-field-error-container{
+  text-align: center;
+}
+
 .error-message {
   font-family: "Open Sans", sans-serif;
   font-size: 0.8rem;
