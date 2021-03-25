@@ -1,0 +1,14 @@
+#modal-add-user-container{
+  max-width: 400px;
+}
+
+.add-user-form-container{
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+}
+
+#add-user-btn{
+  margin-top: 1.5rem;
+  width: 100%;
+}
