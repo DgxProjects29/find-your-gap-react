@@ -1,0 +1,25 @@
+.dropbox {
+  width: 100%;
+  color: var(--secondary-text);
+
+  border: 1px solid var(--secondary-text);
+  box-sizing: border-box;
+  border-radius: 10px;
+
+  padding: 10px 15px;
+
+  /* remove html style (the icon) */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("../icons/caret-down-solid.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px top 50%;
+  background-size: 12px;
+
+  padding-right: 30px;
+
+  margin-right: 4%;
+  outline: none;
+}

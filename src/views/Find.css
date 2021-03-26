@@ -56,7 +56,7 @@
   border-radius: 1rem;
 }
 
-.user-item i {
+.user-item .user-item-close-icon {
   margin-right: 10px;
   font-size: 1.1rem;
   cursor: pointer;
