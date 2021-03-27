@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef, useReducer } from "react";
 import { FaPlus, FaFilter, FaTimes } from "react-icons/fa";
 import Modal from "react-modal";
 import { useForm } from "react-hook-form";
@@ -13,127 +13,195 @@ import "./SettingModal.css";
 import "./SettingSwitch.css";
 import "./SettingSelect.css";
 
+const ACTIONS = {
+  ADD_USER: "ADD_USER",
+  REMOVE_USER: "REMOVE_USER",
+  UPDATE_SETTINGS: "UPDATE_SETTINGS",
+  TOGGLE_ADD_USER_MODAL_TO: "TOGGLE_ADD_USER_MODAL_TO",
+  TOGGLE_SETTING_MODAL_TO: "TOGGLE_SETTING_MODAL_TO",
+};
+
+/* bug in dev, if you reload teh server when saved the file, checkbutton values transform in arrays */
+
+const defaultState = {
+  usernames: [],
+  settings: {
+    compute_sd: false,
+    limit: "-1",
+    show_avg_sd: false,
+    day_filter: "-1",
+  },
+  isUserModalOpen: false,
+  isSettingModalOpen: false,
+};
+
 export default function Find() {
-  const [isUserModalOpen, setUserModalOpen] = useState(false);
-  const [isSettingModalOpen, setSettingModalOpen] = useState(false);
-  const [openSnackbar] = useSnackbar(errorSnackbarOptions);
-  const [usernames, setUsernames] = useState([]);
-  const [gapSettings, setGapSettings] = useState({});
-  const [gapData, setGapData] = useState({});
-  const [isGapDataLoaded, setGapDataLoaded] = useState(false);
-
-  //visit the page of react to use indices as keyus
-  const { post, response, loading } = useFetch(API_BASE);
-
-  const removeUser = (username) => {
-    let newUsers = usernames.filter(
-      (currUsername) => currUsername !== username
-    );
-    setUsernames(newUsers);
-  };
-
-  const validateUser = (username) => {
-    const lowerUsername = username.toLowerCase();
-    return !usernames.includes(lowerUsername) || "Ya agregaste a este usuario";
-  };
-
-  const getGapData = async () => {
-    if (usernames.length >= 2 - 1) {
-      console.log("start");
-      const newGapData = await post("/results", {
-        usernames: usernames,
-        ...gapSettings,
-      });
-      if (response.ok) {
-        setGapDataLoaded(true);
-        setGapData(gapData);
-        console.log(gapData);
-      } else {
-        if (response.status === 400) {
-          openSnackbar(newGapData.usernames[0]);
-        } else {
-          console.log("unexpected");
-        }
-      }
-    }
-  };
-
-  const onAddUser = (data) => {
-    const lowerUsername = data.username.toLowerCase();
-    setUsernames([...usernames, lowerUsername]);
-    getGapData();
-  };
+  const [state, dispatch] = useReducer(reducer, defaultState);
 
   return (
     <>
       <AddUserModal
-        isModalOpen={isUserModalOpen}
-        setModalOpen={setUserModalOpen}
-        onAddUser={onAddUser}
-        validateUsername={validateUser}
+        isModalOpen={state.isUserModalOpen}
+        usernames={state.usernames}
+        dispatch={dispatch}
       />
       <SettingModal
-        isModalOpen={isSettingModalOpen}
-        setModalOpen={setSettingModalOpen}
-        setSettings={setGapSettings}
+        isModalOpen={state.isSettingModalOpen}
+        dispatch={dispatch}
+        state={state}
       />
-
       <main className="main-wrapper section-center">
-        <section className="find-container users-card card-base">
-          <h2 className="find-container__title">Usuarios</h2>
-          <hr className="primary-solid" />
-          <div className="users-container">
-            {usernames.map((username) => {
-              return (
-                <UserItem
-                  key={username}
-                  username={username}
-                  removeUser={removeUser}
-                />
-              );
-            })}
-          </div>
-          <button
-            id="add-modal-user"
-            className="floating-button"
-            onClick={() => setUserModalOpen(true)}
-          >
-            <FaPlus className="floating-button--icon" />
-          </button>
-        </section>
-
-        <section className="find-container gaps-card card-base">
-          <h2 className="find-container__title">Huecos en común</h2>
-          <hr className="primary-solid" />
-          <div className="gaps-container">
-            {/* {loading &&
-              isGapDataLoaded &&
-              gapData.gaps.map((gap) => {
-                return (
-                  <GapItem gap={gap} showAvgSd={gapSettings?.show_avg_sd} />
-                );
-              })} */}
-          </div>
-          <button
-            id="add-modal-settings"
-            className="floating-button"
-            onClick={() => setSettingModalOpen(true)}
-          >
-            <FaFilter className="floating-button--icon" />
-          </button>
-        </section>
+        <UserSection usernames={state.usernames} dispatch={dispatch} />
+        <GapSection state={state} dispatch={dispatch}></GapSection>
       </main>
     </>
   );
 }
 
+function reducer(state, action) {
+  let newUsernames;
+  switch (action.type) {
+    case ACTIONS.ADD_USER:
+      const lowerUsername = action.payload.toLowerCase();
+      newUsernames = [...state.usernames, lowerUsername];
+      return {
+        ...state,
+        usernames: newUsernames,
+      };
+    case ACTIONS.REMOVE_USER:
+      newUsernames = state.usernames.filter(
+        (currUsername) => currUsername !== action.payload
+      );
+      return {
+        ...state,
+        usernames: newUsernames,
+      };
+    case ACTIONS.UPDATE_SETTINGS:
+      return {
+        ...state,
+        settings: action.payload,
+      };
+    case ACTIONS.TOGGLE_ADD_USER_MODAL_TO:
+      return {
+        ...state,
+        isUserModalOpen: action.payload,
+      };
+    case ACTIONS.TOGGLE_SETTING_MODAL_TO:
+      return {
+        ...state,
+        isSettingModalOpen: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+function UserSection({ usernames, dispatch }) {
+  return (
+    <section className="find-container users-card card-base">
+      <h2 className="find-container__title">Usuarios</h2>
+      <hr className="primary-solid" />
+      <div className="users-container">
+        {usernames.map((username) => {
+          return (
+            <UserItem key={username} username={username} dispatch={dispatch} />
+          );
+        })}
+      </div>
+      <button
+        id="add-modal-user"
+        className="floating-button"
+        onClick={() =>
+          dispatch({ type: ACTIONS.TOGGLE_ADD_USER_MODAL_TO, payload: true })
+        }
+      >
+        <FaPlus className="floating-button--icon" />
+      </button>
+    </section>
+  );
+}
+
+function GapSection({ dispatch, state }) {
+  const [gapData, setGapData] = useState({});
+  // const [isGapDataLoaded, setGapDataLoaded] = useState(false);
+  const [openSnackbar] = useSnackbar(errorSnackbarOptions);
+
+  const { post, response, loading } = useFetch(API_BASE);
+
+  const getGapData = async (body) => {
+    const newGapData = await post("/results", body);
+    if (response.ok) {
+      setGapData(newGapData);
+      // setGapDataLoaded(true);
+    } else {
+      if (response.status === 400) {
+        openSnackbar(newGapData.usernames[0]);
+      } else {
+        openSnackbar("Un error inesperado ha ocurrido");
+      }
+    }
+  };
+
+  useEffect(() => {
+    console.log("call useEffect   " + state.usernames.length);
+    if (state.usernames.length >= 2) {
+      const body = {
+        usernames: state.usernames,
+        compute_sd: state.settings.compute_sd,
+      };
+      if (state.settings.limit !== "-1") {
+        body["limit"] = state.settings.limit;
+      }
+      console.table(body);
+      getGapData(body);
+    }
+  }, [state.usernames, state.settings]);
+
+  return (
+    <section className="find-container gaps-card card-base">
+      <h2 className="find-container__title">Huecos en común</h2>
+      <hr className="primary-solid" />
+      <div className="gaps-container">
+        {!loading &&
+          gapData?.gaps?.map((gap, index) => {
+            if (
+              state.settings.day_filter !== -1 ||
+              state.settings.day_filter === gap.day
+            )
+              return (
+                <GapItem
+                  key={index}
+                  gap={gap}
+                  showAvgSd={state.settings.show_avg_sd}
+                />
+              );
+          })}
+      </div>
+      <button
+        id="add-modal-settings"
+        className="floating-button"
+        onClick={() =>
+          dispatch({ type: ACTIONS.TOGGLE_SETTING_MODAL_TO, payload: true })
+        }
+      >
+        <FaFilter className="floating-button--icon" />
+      </button>
+    </section>
+  );
+}
+
 //username are uniques
-function UserItem({ username, removeUser }) {
+function UserItem({ username, dispatch }) {
   return (
     <div className="user-item">
       <FaTimes
         className="user-item-close-icon"
-        onClick={() => removeUser(username)}
+        onClick={() =>
+          dispatch({
+            type: ACTIONS.REMOVE_USER,
+            payload: username,
+          })
+        }
       />
       <p>{username}</p>
     </div>
@@ -142,12 +210,12 @@ function UserItem({ username, removeUser }) {
 
 function GapItem({ gap, showAvgSd }) {
   return (
-    <div class="gap-item">
-      <p class="gap-item__title">
+    <div className="gap-item">
+      <p className="gap-item__title">
         {gap.day} - {gap.hour}
       </p>
       {showAvgSd && (
-        <p class="gap-item__extra-info">
+        <p className="gap-item__extra-info">
           Avg: {gap.avg} - Sd: {gap.sd}
         </p>
       )}
@@ -155,50 +223,51 @@ function GapItem({ gap, showAvgSd }) {
   );
 }
 
-function ModalHeader({ title, setModalOpen }) {
+function ModalHeader({ title, closeModal }) {
   return (
     <header className="modal__header">
       <h2 className="modal__title">{title}</h2>
       <button className="modal__close" aria-label="Close modal">
-        <FaTimes
-          className="floating-button--icon"
-          onClick={() => setModalOpen(false)}
-        />
+        <FaTimes className="floating-button--icon" onClick={closeModal} />
       </button>
     </header>
   );
 }
 
-function AddUserModal({
-  isModalOpen,
-  setModalOpen,
-  onAddUser,
-  validateUsername,
-}) {
+function AddUserModal({ isModalOpen, usernames, dispatch }) {
   const userTextInput = useRef(null);
 
   const { register, handleSubmit, errors, setValue } = useForm();
+
+  const closeModal = () => {
+    dispatch({ type: ACTIONS.TOGGLE_ADD_USER_MODAL_TO, payload: false });
+  };
 
   const setFocus = () => {
     userTextInput.current.focus();
   };
 
+  const validateUsername = (username) => {
+    const lowerUsername = username.toLowerCase();
+    return !usernames.includes(lowerUsername) || "Ya agregaste a este usuario";
+  };
+
   const onSubmit = (data) => {
     setValue("username", "");
-    onAddUser(data);
+    dispatch({ type: ACTIONS.ADD_USER, payload: data.username });
   };
 
   return (
     <Modal
       isOpen={isModalOpen}
-      onRequestClose={() => setModalOpen(false)}
+      onRequestClose={closeModal}
       onAfterOpen={setFocus}
       id={"modal-add-user-container"}
       contentLabel="Example Modal"
       className="modal__container"
       overlayClassName="modal__overlay"
     >
-      <ModalHeader title="Agregar Usuario" setModalOpen={setModalOpen} />
+      <ModalHeader title="Agregar Usuario" closeModal={closeModal} />
 
       <main className="modal__content" id="modal-add-user-content">
         <form
@@ -237,26 +306,41 @@ function AddUserModal({
   );
 }
 
-function SettingModal({ isModalOpen, setModalOpen, setSettings }) {
-  const { register, getValues } = useForm();
+function SettingModal({ isModalOpen, dispatch, state }) {
+  const { register, getValues, setValue } = useForm();
 
   const getDataFromSettings = () => {
     const data = getValues();
-    setSettings(data);
+    // console.log("getting data");
+    // console.log(data)
+    dispatch({ type: ACTIONS.UPDATE_SETTINGS, payload: data });
+  };
+
+  const closeModal = () => {
+    dispatch({ type: ACTIONS.TOGGLE_SETTING_MODAL_TO, payload: false });
+  };
+
+  const setSettingsValues = () => {
+    // console.log("set default values");
+    // console.table(state.settings)
+    setValue("limit", state.settings.limit);
+    setValue("show_avg_sd", state.settings.show_avg_sd);
+    setValue("compute_sd", state.settings.compute_sd);
+    setValue("day_filter", state.settings.day_filter);
   };
 
   return (
     <Modal
       isOpen={isModalOpen}
-      onRequestClose={() => setModalOpen(false)}
+      onRequestClose={closeModal}
       onAfterClose={getDataFromSettings}
+      onAfterOpen={setSettingsValues}
       id={"modal-settings-container"}
       contentLabel="Example Modal"
       className="modal__container"
       overlayClassName="modal__overlay"
     >
-      <ModalHeader title="Configuraciones" setModalOpen={setModalOpen} />
-
+      <ModalHeader title="Configuraciones" closeModal={closeModal} />
       <main className="modal__content" id="modal-setting-content">
         <SettingItemContainer
           title="Limite de Huecos"
@@ -266,9 +350,14 @@ function SettingModal({ isModalOpen, setModalOpen, setSettings }) {
               id="limit"
               name="limit"
               register={register}
-              options={Array.from({ length: 20 }, (e, i) => i).filter(
+              options={Array.from({ length: 10 }, (e, i) => i).filter(
                 (n) => n >= 2
               )}
+              extraOption={
+                <option key="-1" value={"-1"}>
+                  Sin limites
+                </option>
+              }
             />
           }
         />
@@ -302,6 +391,24 @@ function SettingModal({ isModalOpen, setModalOpen, setSettings }) {
             />
           }
         />
+
+        <SettingItemContainer
+          title="Filtrar por dias"
+          description="Decide en que dias deseas ver los huecos"
+          actionComponent={
+            <SettingSelect
+              id="day_filter"
+              name="day_filter"
+              register={register}
+              options={["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]}
+              extraOption={
+                <option key="-1" value={"-1"}>
+                  Sin filtro
+                </option>
+              }
+            />
+          }
+        />
       </main>
     </Modal>
   );
@@ -326,6 +433,7 @@ function SettingSwitch({ id, name, register }) {
         className="toggle__input"
         name={name}
         type="checkbox"
+        value="true"
         id={id}
         ref={register}
       />
@@ -334,11 +442,16 @@ function SettingSwitch({ id, name, register }) {
   );
 }
 
-function SettingSelect({ id, name, register, options }) {
+function SettingSelect({ id, name, register, options, extraOption }) {
   return (
     <select className="dropbox" name={name} id={id} ref={register}>
-      {options.map((option) => {
-        return <option value={option}>{option}</option>;
+      {extraOption}
+      {options.map((option, index) => {
+        return (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        );
       })}
     </select>
   );
