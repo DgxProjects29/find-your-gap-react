@@ -1,31 +1,24 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import useFetch from "use-http";
+import React from "react";
 
 import "./Register.css";
 import "../../common-styles/Loader.css";
 import "../../common-styles/FormStyles.css";
+import { useFormRequest } from "../../../utils/formUtils";
+import { successSnackbarOptions } from "../../../utils/constants";
+import { useSnackbar } from "react-simple-snackbar";
 
 export default function Register() {
-  const { register, handleSubmit, errors } = useForm();
-  const [isDataLoaded, setDataLoaded] = useState(false);
-  const [regiserData, setRegisterData] = useState({});
-  const { post, response, loading } = useFetch();
 
-  const onSubmit = async (data) => {
-    const registerData = await post("/register", {
-      username: data.username,
-      password: data.password,
-      password_confirmation: data.password_confirmation,
-    });
-    setDataLoaded(true);
-    setRegisterData(registerData);
-    if (response.ok) {
-      console.log("GOOD   " + response.status);
-    } else {
-      console.log("NOGOOD  " + response.status);
-    }
+  const [openSnackbar] = useSnackbar(successSnackbarOptions);
+
+  const onSuccess = () => {
+    openSnackbar("Registro exitoso")
   };
+
+  const { register, onSubmit, loading, nonFieldErros, errors } = useFormRequest({
+    itemPath: "/register",
+    onSuccess: onSuccess,
+  });
 
   return (
     <main className="main-wrapper section-center">
@@ -33,7 +26,7 @@ export default function Register() {
         <h2 className="register-container__title">Registrarse</h2>
         <form
           className="register-form-container"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={onSubmit}
         >
           <div className="input-container">
             <label htmlFor="username">Usuario</label>
@@ -44,9 +37,6 @@ export default function Register() {
             />
             {errors.username && (
               <p className="error-message">{errors.username.message}</p>
-            )}
-            {!loading && isDataLoaded && regiserData.username &&  (
-              <p className="error-message">{regiserData.username[0]}</p>
             )}
           </div>
 
@@ -77,10 +67,9 @@ export default function Register() {
           </div>
 
           <div className="non-field-error-container">
-            {!loading && isDataLoaded && regiserData.non_field_errors && 
-              regiserData.non_field_errors.map((errorMessage) => (
-                <p className="error-message">{errorMessage}</p>
-              ))}
+            {nonFieldErros?.map((errorMessage, index) => (
+              <p key={index} className="error-message">{errorMessage}</p>
+            ))}
           </div>
 
           <button

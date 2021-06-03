@@ -12,3 +12,14 @@ export const errorSnackbarOptions = {
     textAlign: "left",
   },
 };
+
+export const successSnackbarOptions = {
+  position: "bottom-right",
+  style: {
+    backgroundColor: SUCCESS_COLOR,
+    color: "#ffffff",
+    fontSize: "14px",
+    fontFamily: "Montserrat",
+    textAlign: "left",
+  },
+};
