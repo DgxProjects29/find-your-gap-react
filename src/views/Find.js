@@ -8,6 +8,7 @@ import { API_BASE, errorSnackbarOptions } from "../utils/constants";
 
 import "./Find.css";
 import "../common-css/ModalBase.css";
+import "../common-css/Loader.css";
 import "./AddUserModal.css";
 import "./SettingModal.css";
 import "./SettingSwitch.css";
@@ -123,7 +124,6 @@ function UserSection({ usernames, dispatch }) {
 
 function GapSection({ dispatch, state }) {
   const [gapData, setGapData] = useState({});
-  // const [isGapDataLoaded, setGapDataLoaded] = useState(false);
   const [openSnackbar] = useSnackbar(errorSnackbarOptions);
 
   const { post, response, loading } = useFetch(API_BASE);
@@ -132,10 +132,9 @@ function GapSection({ dispatch, state }) {
     const newGapData = await post("/results", body);
     if (response.ok) {
       setGapData(newGapData);
-      // setGapDataLoaded(true);
     } else {
       if (response.status === 400) {
-        openSnackbar(newGapData.usernames[0]);
+        if (newGapData.usernames) openSnackbar(newGapData.usernames[0]);
       } else {
         openSnackbar("Un error inesperado ha ocurrido");
       }
@@ -152,7 +151,6 @@ function GapSection({ dispatch, state }) {
       if (state.settings.limit !== "-1") {
         body["limit"] = state.settings.limit;
       }
-      console.table(body);
       getGapData(body);
     }
   }, [state.usernames, state.settings]);
@@ -163,19 +161,21 @@ function GapSection({ dispatch, state }) {
       <hr className="primary-solid" />
       <div className="gaps-container">
         {!loading &&
-          gapData?.gaps?.map((gap, index) => {
-            if (
-              state.settings.day_filter !== -1 ||
-              state.settings.day_filter === gap.day
+          gapData?.gaps
+            ?.filter(
+              (gap) =>
+                state.settings.day_filter === "-1" ||
+                state.settings.day_filter === gap.day
             )
+            .map((gap, index) => {
               return (
                 <GapItem
-                  key={index}
                   gap={gap}
                   showAvgSd={state.settings.show_avg_sd}
+                  key={index}
                 />
               );
-          })}
+            })}
       </div>
       <button
         id="add-modal-settings"
@@ -311,7 +311,9 @@ function SettingModal({ isModalOpen, dispatch, state }) {
 
   const getDataFromSettings = () => {
     const data = getValues();
-    // console.log("getting data");
+    data["show_avg_sd"] = data["show_avg_sd"] === "true";
+    data["compute_sd"] = data["compute_sd"] === "true";
+    console.log("getting data");
     // console.log(data)
     dispatch({ type: ACTIONS.UPDATE_SETTINGS, payload: data });
   };
@@ -456,3 +458,5 @@ function SettingSelect({ id, name, register, options, extraOption }) {
     </select>
   );
 }
+
+//typeof avg === "boolean"

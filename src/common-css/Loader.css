@@ -1,0 +1,11 @@
+.base-loader {
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

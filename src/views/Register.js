@@ -4,6 +4,7 @@ import useFetch from "use-http";
 import { API_BASE } from "../utils/constants";
 
 import "./Register.css";
+import "../common-css/Loader.css"
 import "../common-css/FormStyles.css";
 
 export default function Register() {
