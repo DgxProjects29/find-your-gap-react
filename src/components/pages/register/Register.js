@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useFetch from "use-http";
-import { API_BASE } from "../utils/constants";
 
 import "./Register.css";
-import "../common-css/Loader.css"
-import "../common-css/FormStyles.css";
+import "../../common-styles/Loader.css";
+import "../../common-styles/FormStyles.css";
 
 export default function Register() {
   const { register, handleSubmit, errors } = useForm();
   const [isDataLoaded, setDataLoaded] = useState(false);
   const [regiserData, setRegisterData] = useState({});
-  const { post, response, loading } = useFetch(API_BASE);
-
-  //const onSubmit = (data) => console.log(data);
+  const { post, response, loading } = useFetch();
 
   const onSubmit = async (data) => {
     const registerData = await post("/register", {
@@ -102,5 +99,3 @@ export default function Register() {
     </main>
   );
 }
-
-//{errors.password && <p className="error-message">pass</p>}

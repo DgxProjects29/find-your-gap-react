@@ -4,11 +4,11 @@ import Modal from "react-modal";
 import { useForm } from "react-hook-form";
 import { useSnackbar } from "react-simple-snackbar";
 import useFetch from "use-http";
-import { API_BASE, errorSnackbarOptions } from "../utils/constants";
+import { errorSnackbarOptions } from "../../../utils/constants";
 
 import "./Find.css";
-import "../common-css/ModalBase.css";
-import "../common-css/Loader.css";
+import "../../common-styles/ModalBase.css";
+import "../../common-styles/Loader.css";
 import "./AddUserModal.css";
 import "./SettingModal.css";
 import "./SettingSwitch.css";
@@ -126,7 +126,7 @@ function GapSection({ dispatch, state }) {
   const [gapData, setGapData] = useState({});
   const [openSnackbar] = useSnackbar(errorSnackbarOptions);
 
-  const { post, response, loading } = useFetch(API_BASE);
+  const { post, response, loading } = useFetch();
 
   const getGapData = async (body) => {
     const newGapData = await post("/results", body);
