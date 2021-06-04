@@ -13,7 +13,6 @@
     "react-modal": "^3.12.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "react-simple-snackbar": "^1.1.10",
     "use-http": "^1.0.18",
     "web-vitals": "^1.1.0"
   },

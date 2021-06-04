@@ -23,7 +23,6 @@ export function useFormRequest({
   } = useFetch();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log("hola")
     let responseData;
     if (updatePk) {
       responseData = updateWithPatch

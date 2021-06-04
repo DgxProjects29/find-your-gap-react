@@ -4,15 +4,10 @@ import "./Register.css";
 import "../../common-styles/Loader.css";
 import "../../common-styles/FormStyles.css";
 import { useFormRequest } from "../../../utils/formUtils";
-import { successSnackbarOptions } from "../../../utils/constants";
-import { useSnackbar } from "react-simple-snackbar";
 
 export default function Register() {
 
-  const [openSnackbar] = useSnackbar(successSnackbarOptions);
-
   const onSuccess = () => {
-    openSnackbar("Registro exitoso")
   };
 
   const { register, onSubmit, loading, nonFieldErros, errors } = useFormRequest({
