@@ -4,9 +4,16 @@ import "./Register.css";
 import "../../common-styles/Loader.css";
 import "../../common-styles/FormStyles.css";
 import { useFormRequest } from "../../../utils/formUtils";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Register() {
-  const onSuccess = () => {};
+  const onSuccess = (data, reset) => {
+    toast.success("Registro exitoso", {
+      position: "bottom-right",
+      duration: 5000,
+    });
+    reset();
+  };
 
   const { register, onSubmit, loading, nonFieldErros, errors } = useFormRequest(
     {
@@ -16,72 +23,72 @@ export default function Register() {
   );
 
   return (
-    <main className="main-wrapper section-center">
-      <section className="register-container card-base">
-        <h2 className="register-container__title">Registrarse</h2>
-        <form
-          className="register-form-container"
-          onSubmit={onSubmit}
-        >
-          <div className="input-container">
-            <label htmlFor="username">Usuario</label>
-            <input
-              name="username"
-              type="text"
-              ref={register({ required: "Este campo es requerido" })}
-            />
-            {errors.username && (
-              <p className="error-message">{errors.username.message}</p>
-            )}
-          </div>
+    <React.Fragment>
+      <main className="main-wrapper section-center">
+        <section className="register-container card-base">
+          <h2 className="register-container__title">Registrarse</h2>
+          <form className="register-form-container" onSubmit={onSubmit}>
+            <div className="input-container">
+              <label htmlFor="username">Usuario</label>
+              <input
+                name="username"
+                type="text"
+                ref={register({ required: "Este campo es requerido" })}
+              />
+              {errors.username && (
+                <p className="error-message">{errors.username.message}</p>
+              )}
+            </div>
 
-          <div className="input-container">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              name="password"
-              type="password"
-              ref={register({ required: "Este campo es requerido" })}
-            />
-            {errors.password && (
-              <p className="error-message">{errors.password.message}</p>
-            )}
-          </div>
+            <div className="input-container">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                name="password"
+                type="password"
+                ref={register({ required: "Este campo es requerido" })}
+              />
+              {errors.password && (
+                <p className="error-message">{errors.password.message}</p>
+              )}
+            </div>
 
-          <div className="input-container">
-            <label htmlFor="password_confirmation">Repetir contraseña</label>
-            <input
-              name="password_confirmation"
-              type="password"
-              ref={register({ required: "Este campo es requerido" })}
-            />
-            {errors.password_confirmation && (
-              <p className="error-message">
-                {errors.password_confirmation.message}
-              </p>
-            )}
-          </div>
+            <div className="input-container">
+              <label htmlFor="password_confirmation">Repetir contraseña</label>
+              <input
+                name="password_confirmation"
+                type="password"
+                ref={register({ required: "Este campo es requerido" })}
+              />
+              {errors.password_confirmation && (
+                <p className="error-message">
+                  {errors.password_confirmation.message}
+                </p>
+              )}
+            </div>
 
-          <div className="non-field-error-container">
-            {nonFieldErros?.map((errorMessage, index) => (
-              <p key={index} className="error-message">
-                {errorMessage}
-              </p>
-            ))}
-          </div>
+            <div className="non-field-error-container">
+              {nonFieldErros?.map((errorMessage, index) => (
+                <p key={index} className="error-message">
+                  {errorMessage}
+                </p>
+              ))}
+            </div>
 
-          <button
-            type="submit"
-            className="base-btn primary-btn"
-            id="register-btn"
-          >
-            {loading ? (
-              <div className="base-loader login-btn-loader"></div>
-            ) : (
-              "Registrarse"
-            )}
-          </button>
-        </form>
-      </section>
-    </main>
+            <button
+              type="submit"
+              className="base-btn primary-btn"
+              id="register-btn"
+            >
+              {loading ? (
+                <div className="base-loader login-btn-loader"></div>
+              ) : (
+                "Registrarse"
+              )}
+            </button>
+          </form>
+        </section>
+      </main>
+      <Toaster />
+    </React.Fragment>
   );
 }

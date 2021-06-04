@@ -32,7 +32,7 @@ export function useFormRequest({
       responseData = await post(endPoint, data);
     }
     if (response.ok) {
-      onSuccess(responseData);
+      onSuccess(responseData, reset);
     } else {
       setResponseErrors(setError, responseData);
     }
