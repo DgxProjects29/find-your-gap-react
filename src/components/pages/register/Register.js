@@ -6,14 +6,14 @@ import "../../common-styles/FormStyles.css";
 import { useFormRequest } from "../../../utils/formUtils";
 
 export default function Register() {
+  const onSuccess = () => {};
 
-  const onSuccess = () => {
-  };
-
-  const { register, onSubmit, loading, nonFieldErros, errors } = useFormRequest({
-    itemPath: "/register",
-    onSuccess: onSuccess,
-  });
+  const { register, onSubmit, loading, nonFieldErros, errors } = useFormRequest(
+    {
+      itemPath: "/register",
+      onSuccess: onSuccess,
+    }
+  );
 
   return (
     <main className="main-wrapper section-center">
@@ -63,7 +63,9 @@ export default function Register() {
 
           <div className="non-field-error-container">
             {nonFieldErros?.map((errorMessage, index) => (
-              <p key={index} className="error-message">{errorMessage}</p>
+              <p key={index} className="error-message">
+                {errorMessage}
+              </p>
             ))}
           </div>
 

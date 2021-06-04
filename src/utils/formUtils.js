@@ -63,10 +63,12 @@ export function useFormRequest({
 
 export function setResponseErrors(setError, responseErrors) {
   for (const key in responseErrors) {
-    setError(key, {
-      type: "response",
-      message: responseErrors[key].join(","),
-    });
+    if (key !== "non_field_errors") {
+      setError(key, {
+        type: "response",
+        message: responseErrors[key].join(","),
+      });
+    }
   }
 }
 

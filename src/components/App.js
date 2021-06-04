@@ -10,9 +10,11 @@ import Header from "./main-components/header";
 
 import "./App.css";
 
+const fetchOptions = { timeout: 10000, retries: 1}
+
 function App() {
   return (
-    <Provider url={process.env.REACT_APP_API_BASE}>
+    <Provider url={process.env.REACT_APP_API_BASE} options={fetchOptions}>
       <Router>
         <Header />
         <Switch>
