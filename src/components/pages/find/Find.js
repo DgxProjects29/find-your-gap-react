@@ -31,7 +31,7 @@ export default function Find() {
     <FindState.Provider value={{ findState, dispatch }}>
       <AddUserModal />
       <SettingModal />
-      <main className="main-wrapper section-center">
+      <main className="main-wrapper section-find-center">
         <UserSection />
         <GapSection />
       </main>

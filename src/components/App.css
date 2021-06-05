@@ -86,3 +86,9 @@ ul {
   background-color: var(--bg-color);
   flex-grow: 1;
 }
+
+.section-center{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

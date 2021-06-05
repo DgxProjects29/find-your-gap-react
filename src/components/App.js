@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 
 import { Provider } from "use-http";
 import Home from "./pages/home";
@@ -10,7 +15,7 @@ import Header from "./main-components/header";
 
 import "./App.css";
 
-const fetchOptions = { timeout: 10000, retries: 1}
+const fetchOptions = { timeout: 10000, retries: 1 };
 
 function App() {
   return (
@@ -21,6 +26,9 @@ function App() {
           <Route path="/home" component={Home} />
           <Route path="/register" component={Register} />
           <Route path="/find" component={Find} />
+          <Route path="*">
+            <Redirect to="/home" />
+          </Route>
         </Switch>
       </Router>
     </Provider>
